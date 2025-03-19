@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git credentialsId: "${GITHUB_CREDENTIALS_ID}", url: 'https://github.com/Dhanushree1401/devops_.git', branch: 'main'
+                git credentialsId: GITHUB_CREDENTIALS_ID, url: 'https://github.com/Dhanushree1401/devops_.git', branch: 'main'
             }
         }
 
@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh 'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin'
+                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                     }
                 }
             }
@@ -45,16 +45,7 @@ pipeline {
         stage('Deploy using Docker Compose') {
             steps {
                 script {
-                    sh """
-                        if [ -d "$APP_DIR" ]; then
-                            cd $APP_DIR
-                            docker-compose pull
-                            docker-compose up -d --remove-orphans
-                        else
-                            echo "Error: Directory $APP_DIR does not exist."
-                            exit 1
-                        fi
-                    """
+                    sh "docker-compose up -d"
                 }
             }
         }
@@ -62,7 +53,7 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline executed successfully!'
+            echo 'Pipeline executed successfully! '
         }
         failure {
             echo 'Pipeline failed! Check the logs for errors.'
