@@ -27,8 +27,8 @@ pipeline {
         stage('Login to Docker Registry') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: docker-hub-creds, usernameVariable: 'Dhanushree1401', passwordVariable: 'Dhanu@1401')]) {
-                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin'
                     }
                 }
             }
@@ -46,9 +46,14 @@ pipeline {
             steps {
                 script {
                     sh """
-                        cd $APP_DIR
-                        docker-compose pull
-                        docker-compose up -d --remove-orphans
+                        if [ -d "$APP_DIR" ]; then
+                            cd $APP_DIR
+                            docker-compose pull
+                            docker-compose up -d --remove-orphans
+                        else
+                            echo "Error: Directory $APP_DIR does not exist."
+                            exit 1
+                        fi
                     """
                 }
             }
